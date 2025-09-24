@@ -64,6 +64,7 @@ python-from-scratch/
 │
 ├── phase1_basics/
 │   └── simple_calculator.py
+│   └── password_generator.py
 │
 ├── phase2_fastapi/
 │   └── hello_world_api.py   (coming soon)

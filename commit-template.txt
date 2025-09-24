@@ -1,0 +1,11 @@
+# Commit message guidelines (Conventional style)
+#
+# Format: <type>: <short summary>
+# Types: feat, fix, docs, refactor, chore
+#
+# Examples:
+# feat: add interactive password generator (Phase 1, Part 2)
+# fix: handle invalid input for password length
+# docs: update README with calculator instructions
+# refactor: reorganize password generator functions
+# chore: update .gitignore for Python cache files
