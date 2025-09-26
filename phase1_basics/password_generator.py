@@ -6,7 +6,15 @@ import string  # for the character pool
 import secrets  # for the random choice
 
 
-def generate_password(length=12, use_digits=True, use_symbols=True):
+def secure_shuffle(chars: list[str]) -> None:
+    """Shuffle a list in a secure way"""
+    for i in range(len(chars)-1, 0, -1):
+        j = secrets.randbelow(i+1)
+        chars[i], chars[j] = chars[j], chars[i]
+
+
+def generate_password(length=12, use_digits=True, use_symbols=True,
+                      enforce_requirements=False):
     """
     Generate a random password
     """
@@ -19,7 +27,23 @@ def generate_password(length=12, use_digits=True, use_symbols=True):
     if not pool:
         raise ValueError("Character pool is empty")
 
-    return "".join(secrets.choice(pool) for _ in range(length))
+    if enforce_requirements:
+        # ensure at least one of each selected type
+        required = []
+        if use_digits:
+            required.append(secrets.choice(string.digits))
+        if use_symbols:
+            required.append(secrets.choice(string.punctuation))
+        if len(required) > length:
+            raise ValueError(
+                "Password length is too short to meet requirements"
+                )
+        password_chars = required + [secrets.choice(pool)
+                                     for _ in range(length-len(required))]
+        secure_shuffle(password_chars)
+        return "".join(password_chars)
+    else:
+        return "".join(secrets.choice(pool) for _ in range(length))
 
 
 def ask_int(prompt: str, minimum: int = 4, maximum: int = 128) -> int:
@@ -55,12 +79,14 @@ def main():
     length = ask_int("Length (4-128): ", minimum=4, maximum=128)
     use_digits = ask_bool("Include digits 0-9?")
     use_symbols = ask_bool("Include symbols?")
+    enforce = ask_bool("Enforce at least one of each selected type?")
 
-    #  Ensure at least one category beyond letters is user chose none
-    if not use_digits and not use_symbols:
-        print("Generating with letters only.")
-    password = generate_password(length=length, use_digits=use_digits,
-                                 use_symbols=use_symbols)
+    password = generate_password(
+        length=length,
+        use_digits=use_digits,
+        use_symbols=use_symbols,
+        enforce_requirements=enforce
+        )
     print("\nYour password:")
     print(password)
 
