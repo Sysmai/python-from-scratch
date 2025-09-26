@@ -2,6 +2,7 @@
 This is a simple password generator
 """
 
+import math  # for math.functions
 import string  # for the character pool
 import secrets  # for the random choice
 
@@ -11,6 +12,24 @@ def secure_shuffle(chars: list[str]) -> None:
     for i in range(len(chars)-1, 0, -1):
         j = secrets.randbelow(i+1)
         chars[i], chars[j] = chars[j], chars[i]
+
+
+def estimate_entropy(length: int, pool_size: int) -> float:
+    """Estimate the entropy of a password"""
+    if length <= 0 or pool_size <= 1:
+        return 0.0
+    return length * math.log2(pool_size)
+
+
+def strength_label(bits: float) -> str:
+    """Return a label for the strength of a password"""
+    if bits < 28:
+        return "weak"
+    if bits < 56:
+        return "moderate"
+    if bits < 80:
+        return "strong"
+    return "very strong"
 
 
 def generate_password(length=12, use_digits=True, use_symbols=True,
@@ -87,8 +106,19 @@ def main():
         use_symbols=use_symbols,
         enforce_requirements=enforce
         )
+
+    # strength estimate
+    pool_size = len(string.ascii_letters)
+    if use_digits:
+        pool_size += len(string.digits)
+    if use_symbols:
+        pool_size += len(string.punctuation)
+    bits = estimate_entropy(length, pool_size)
+
     print("\nYour password:")
     print(password)
+    print(f"\nEstimated strength: {strength_label(bits)} ({bits:.1f} bits) "
+          f"from pool {pool_size} x length {length}")
 
 
 if __name__ == "__main__":
