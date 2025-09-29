@@ -10,9 +10,15 @@ Each phase builds on the last — from small scripts to full-stack APIs with Fas
 ### Phase 1: Core Python Basics
 
 * Small, self-contained programs using loops, conditionals, lists, dicts, functions, and classes.
-* **Completed so far:**
+* **✅ Completed so far | 🟡 In Progress**
 
   * ✅ `simple_calculator.py` — basic calculator with input validation, loops, and error handling.
+
+  * ✅ `password_generator.py` — a simple password generator that uses secure randomness and
+                                 customizable options for length, digits, and symbols.
+
+  * 🟡 `task_list_manager.py` — a CLI app that tracks tasks in memory using lists, dicts, functions,
+                                 string parsing, etc...
 
 ### Phase 2: FastAPI Intro
 
@@ -65,7 +71,8 @@ python-from-scratch/
 ├── phase1_basics/
 │   └── simple_calculator.py
 │   └── password_generator.py
-│
+│   └── task_list_manager.py
+|
 ├── phase2_fastapi/
 │   └── hello_world_api.py   (coming soon)
 │
