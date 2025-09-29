@@ -165,14 +165,78 @@ def load_tasks(path: Path) -> List[Task]:
                 "done": bool(item["done"]),
             })
         return tasks
-    except Exception as e:
-        print(f"Error loading tasks from {path}: {e}\n")
+    except OSError as e:
+        print(f"File error: {e}\n")
         return []
+    except json.JSONDecodeError as e:
+        print(f"JSON error: {e}\n")
+        return []
+
+
+def handle_add_task(tasks: List[Task]) -> None:
+    """Handle adding a new task."""
+    title = input("Title: ").strip()
+    if not title:
+        print("Task title cannot be empty.\n")
+        return
+    pri_raw = input("Priority (low/med/high) [med]: ")
+    pri = parse_priority(pri_raw if pri_raw else "med")
+    try:
+        task = add_task(tasks, title, pri)
+        print(f"Added task {task['id']}: "
+              f"{task['title']} (pri {task['priority']})\n")
+    except ValueError as e:
+        print(f"Error: {e}\n")
+
+
+def handle_mark_done(tasks: List[Task]) -> None:
+    """Handle marking a task as done."""
+    raw = input("Enter task ID to mark done: ").strip()
+    if not raw.isdigit():
+        print("Please enter a valid task ID.\n")
+        return
+    tid = int(raw)
+    if mark_done(tasks, tid):
+        print(f"Task #{tid} marked done.\n")
+    else:
+        print(f"No task with ID {tid}.\n")
+
+
+def handle_delete_task(tasks: List[Task]) -> None:
+    """Handle deleting a task."""
+    raw = input("Enter task ID to delete: ").strip()
+    if not raw.isdigit():
+        print("Please enter a valid task ID.\n")
+        return
+    tid = int(raw)
+    if delete_task(tasks, tid):
+        print(f"Task #{tid} deleted.\n")
+    else:
+        print(f"No task with ID {tid}.\n")
+
+
+def handle_save_tasks(tasks: List[Task]) -> None:
+    """Handle saving tasks to file."""
+    try:
+        save_tasks(DEFAULT_PATH, tasks)
+        print(f"Saved {len(tasks)} tasks to {DEFAULT_PATH}.\n")
+    except OSError as e:  # file/permission problems
+        print(f"File error: {e}\n")
+    except json.JSONDecodeError as e:
+        print(f"JSON error: {e}\n")
+
+
+def handle_load_tasks() -> List[Task]:
+    """Handle loading tasks from file."""
+    tasks = load_tasks(DEFAULT_PATH)
+    print(f"Loaded {len(tasks)} tasks from {DEFAULT_PATH}.\n")
+    return tasks
 
 
 def main() -> None:
     """Main function to run the task list manager."""
     tasks: List[Task] = []
+
     while True:
         print("Task List Manager")
         print("--------------------------------")
@@ -187,64 +251,22 @@ def main() -> None:
         choice = input("Choose: ").strip()
 
         if choice == "1":
-            title = input("Title: ").strip()
-            if not title:
-                print("Task title cannot be empty.\n")
-                continue
-            pri_raw = input("Priority (low/med/high) [med]: ")
-            pri = parse_priority(pri_raw if pri_raw else "med")
-            try:
-                task = add_task(tasks, title, pri)
-                print(f"Added task {task['id']}: "
-                      f"{task['title']} (pri {task['priority']})\n")
-            except ValueError as e:
-                print(f"Error: {e}\n")
-
+            handle_add_task(tasks)
         elif choice == "2":
             list_tasks(tasks)
-
         elif choice == "3":
-            raw = input("Enter task ID to mark done: ").strip()
-            if not raw.isdigit():
-                print("Please enter a valid task ID.\n")
-                continue
-            tid = int(raw)
-            if mark_done(tasks, tid):
-                print(f"Task #{tid} marked done.\n")
-            else:
-                print(f"No task with ID {tid}.\n")
-
+            handle_mark_done(tasks)
         elif choice == "4":
-            raw = input("Enter task ID to delete: ").strip()
-            if not raw.isdigit():
-                print("Please enter a valid task ID.\n")
-                continue
-            tid = int(raw)
-            if delete_task(tasks, tid):
-                print(f"Task #{tid} deleted.\n")
-            else:
-                print(f"No task with ID {tid}.\n")
-
+            handle_delete_task(tasks)
         elif choice == "5":
             list_filtered(tasks)
-
         elif choice == "6":
-            try:
-                save_tasks(DEFAULT_PATH, tasks)
-                print(f"Saved {len(tasks)} tasks to {DEFAULT_PATH}.\n")
-            except OSError as e:  # file/permission problems
-                print(f"File error: {e}\n")
-            except json.JSONDecodeError as e:
-                print(f"JSON error: {e}\n")
-
+            handle_save_tasks(tasks)
         elif choice == "7":
-            tasks = load_tasks(DEFAULT_PATH)
-            print(f"Loaded {len(tasks)} tasks from {DEFAULT_PATH}.\n")
-
+            tasks = handle_load_tasks()
         elif choice == "8":
             print("Goodbye.")
             break
-
         else:
             print("Invalid choice. Try 1-8.\n")
 
