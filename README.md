@@ -1,7 +1,3 @@
-Got it — here’s the full README in **one clean Markdown doc** (no code window hopping). You can copy-paste this directly into your repo’s `README.md`:
-
----
-
 # Python From Scratch
 
 This repository documents my structured journey of learning **Python** from the ground up.
