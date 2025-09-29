@@ -3,6 +3,8 @@ Phase 1, Step 1: Add + List tasks
 """
 
 
+import json
+from pathlib import Path
 from typing import List, Dict
 
 
@@ -124,17 +126,64 @@ def list_filtered(tasks: List[Task]) -> None:
     list_tasks(results)
 
 
+DEFAULT_PATH = Path("tasks.json")
+
+
+def serialize_tasks(tasks: List[Task]) -> list[dict]:
+    """Convert tasks list to JSON safe list of dicts."""
+    out: list[dict] = []
+    for t in tasks:
+        out.append({
+            "id": str(t["id"]),
+            "title": str(t["title"]),
+            "priority": str(t["priority"]),
+            "done": bool(t["done"]),
+        })
+    return out
+
+
+def save_tasks(path: Path, tasks: List[Task]) -> None:
+    """Save tasks to a file."""
+    data = serialize_tasks(tasks)
+    with path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+
+def load_tasks(path: Path) -> List[Task]:
+    """Read tasks from JSON file. Return empty list if file doesn't exist."""
+    if not path.exists():
+        return []
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            data = json.load(f)
+        tasks: List[Task] = []
+        for item in data:
+            tasks.append({
+                "id": int(item["id"]),
+                "title": item["title"],
+                "priority": item["priority"],
+                "done": bool(item["done"]),
+            })
+        return tasks
+    except Exception as e:
+        print(f"Error loading tasks from {path}: {e}\n")
+        return []
+
+
 def main() -> None:
     """Main function to run the task list manager."""
     tasks: List[Task] = []
     while True:
         print("Task List Manager")
+        print("--------------------------------")
         print("[1] Add Task")
         print("[2] List Tasks")
         print("[3] Mark Done")
         print("[4] Delete Task")
         print("[5] List with Filters")
-        print("[6] Quit")
+        print("[6] Save Tasks")
+        print("[7] Load Tasks")
+        print("[8] Quit")
         choice = input("Choose: ").strip()
 
         if choice == "1":
@@ -180,11 +229,24 @@ def main() -> None:
             list_filtered(tasks)
 
         elif choice == "6":
+            try:
+                save_tasks(DEFAULT_PATH, tasks)
+                print(f"Saved {len(tasks)} tasks to {DEFAULT_PATH}.\n")
+            except OSError as e:  # file/permission problems
+                print(f"File error: {e}\n")
+            except json.JSONDecodeError as e:
+                print(f"JSON error: {e}\n")
+
+        elif choice == "7":
+            tasks = load_tasks(DEFAULT_PATH)
+            print(f"Loaded {len(tasks)} tasks from {DEFAULT_PATH}.\n")
+
+        elif choice == "8":
             print("Goodbye.")
             break
 
         else:
-            print("Invalid choice. Try 1, 2, 3, 4, 5, or 6.\n")
+            print("Invalid choice. Try 1-8.\n")
 
 
 if __name__ == "__main__":
