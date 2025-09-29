@@ -85,6 +85,45 @@ def delete_task(tasks: List[Task], task_id: int) -> bool:
     return True
 
 
+def filter_tasks(
+    tasks: List[Task],
+    *,
+    done: bool | None = None,
+    priority: str | None = None,
+) -> List[Task]:
+    """Filter tasks based on done and priority."""
+    out = tasks
+    if done is not None:
+        out = [t for t in out if bool(t["done"]) is done]
+    if priority is not None:
+        p = parse_priority(priority)
+        out = [t for t in out if str(t["priority"]) == p]
+    return out
+
+
+def list_filtered(tasks: List[Task]) -> None:
+    """Prompt user for filters and print result."""
+    raw_done = input("Filter by done? (y/n/blank for no filter): "
+                     ).strip().lower()
+    done_filter = bool | None
+    if raw_done in ["y", "yes"]:
+        done_filter = True
+    elif raw_done in ["n", "no"]:
+        done_filter = False
+    else:
+        done_filter = None
+
+    raw_pri = input("Filter by priority? (low/med/high/blank for no filter): "
+                    ).strip()
+    pri_filter = parse_priority(raw_pri) if raw_pri else None
+
+    results = filter_tasks(tasks, done=done_filter, priority=pri_filter)
+    if not results:
+        print("No tasks match the filters.\n")
+        return
+    list_tasks(results)
+
+
 def main() -> None:
     """Main function to run the task list manager."""
     tasks: List[Task] = []
@@ -94,7 +133,8 @@ def main() -> None:
         print("[2] List Tasks")
         print("[3] Mark Done")
         print("[4] Delete Task")
-        print("[5] Quit")
+        print("[5] List with Filters")
+        print("[6] Quit")
         choice = input("Choose: ").strip()
 
         if choice == "1":
@@ -137,11 +177,14 @@ def main() -> None:
                 print(f"No task with ID {tid}.\n")
 
         elif choice == "5":
+            list_filtered(tasks)
+
+        elif choice == "6":
             print("Goodbye.")
             break
 
         else:
-            print("Invalid choice. Try 1, 2, 3, 4, or 5.\n")
+            print("Invalid choice. Try 1, 2, 3, 4, 5, or 6.\n")
 
 
 if __name__ == "__main__":
