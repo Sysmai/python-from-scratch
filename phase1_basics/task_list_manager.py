@@ -59,6 +59,32 @@ def parse_priority(raw: str) -> str:
     return "med"
 
 
+def find_task_index(tasks: List[Task], task_id: int) -> int | None:
+    """Return the index of the task with the given ID, or None if not found."""
+    for i, t in enumerate(tasks):
+        if int(t["id"]) == task_id:
+            return i
+    return None
+
+
+def mark_done(tasks: List[Task], task_id: int) -> bool:
+    """Mark a task as done. Return True if successful, False if not found."""
+    idx = find_task_index(tasks, task_id)
+    if idx is None:
+        return False
+    tasks[idx]["done"] = True
+    return True
+
+
+def delete_task(tasks: List[Task], task_id: int) -> bool:
+    """Delete a task. Return True if successful, False if not found."""
+    idx = find_task_index(tasks, task_id)
+    if idx is None:
+        return False
+    del tasks[idx]
+    return True
+
+
 def main() -> None:
     """Main function to run the task list manager."""
     tasks: List[Task] = []
@@ -66,7 +92,9 @@ def main() -> None:
         print("Task List Manager")
         print("[1] Add Task")
         print("[2] List Tasks")
-        print("[3] Quit")
+        print("[3] Mark Done")
+        print("[4] Delete Task")
+        print("[5] Quit")
         choice = input("Choose: ").strip()
 
         if choice == "1":
@@ -87,11 +115,33 @@ def main() -> None:
             list_tasks(tasks)
 
         elif choice == "3":
+            raw = input("Enter task ID to mark done: ").strip()
+            if not raw.isdigit():
+                print("Please enter a valid task ID.\n")
+                continue
+            tid = int(raw)
+            if mark_done(tasks, tid):
+                print(f"Task #{tid} marked done.\n")
+            else:
+                print(f"No task with ID {tid}.\n")
+
+        elif choice == "4":
+            raw = input("Enter task ID to delete: ").strip()
+            if not raw.isdigit():
+                print("Please enter a valid task ID.\n")
+                continue
+            tid = int(raw)
+            if delete_task(tasks, tid):
+                print(f"Task #{tid} deleted.\n")
+            else:
+                print(f"No task with ID {tid}.\n")
+
+        elif choice == "5":
             print("Goodbye.")
             break
 
         else:
-            print("Invalid choice. Try 1, 2, or 3.\n")
+            print("Invalid choice. Try 1, 2, 3, 4, or 5.\n")
 
 
 if __name__ == "__main__":
