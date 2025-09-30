@@ -25,8 +25,8 @@ Each phase builds on the last — from small scripts to full-stack APIs with Fas
 
 ### Phase 2: FastAPI Intro
 
-* Install and configure FastAPI + Uvicorn.
-* Build a simple “Hello World” API.
+* 🟡 Installed and configured FastAPI + Uvicorn.
+* 🟡 Built a simple “Hello World” API with `/hello` and `/greet/{name}` routes.
 
 ### Phase 3: CRUD API
 
@@ -77,7 +77,7 @@ python-from-scratch/
 │   └── task_list_manager.py
 │
 ├── phase2_fastapi/
-│   └── hello_world_api.py   (coming soon)
+│   └── hello_world_api.py
 │
 ├── phase3_crud/
 │   └── crud_api.py          (coming soon)
@@ -116,6 +116,7 @@ git commit -m "docs: update README with Phase 1 progress"
 
 ## ▶️ How to Run (Phase 1 Scripts)
 
+### Phase 1 Scripts
 From the repo root, run with Python 3:
 
 ```
@@ -127,3 +128,16 @@ python phase1_basics/task_list_manager.py
 * Calculator: simple math operations with input validation.
 * Password Generator: generates secure passwords with customizable length/digits/symbols.
 * Task List Manager: interactive CLI for adding, listing, filtering, saving, and loading tasks.
+
+### Phase 2 FastAPI App
+From the repo root, run with Uvicorn:
+
+```
+uvicorn phase2_fastapi.hello_world_api:app --reload
+```
+
+
+Open in browser:
+* <http://127.0.0.1:8000/hello>
+* <http://127.0.0.1:8000/greet/YourName>
+* Docs: <http://127.0.0.1:8000/docs>
