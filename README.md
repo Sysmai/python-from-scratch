@@ -25,13 +25,13 @@ Each phase builds on the last — from small scripts to full-stack APIs with Fas
 
 ### Phase 2: FastAPI Intro
 
-* 🟡 Installed and configured FastAPI + Uvicorn.
-* 🟡 Built a simple “Hello World” API with `/hello` and `/greet/{name}` routes.
+* ✅ Installed and configured FastAPI + Uvicorn.
+* ✅ Built a simple “Hello World” API with `/hello` and `/greet/{name}` routes.
 
 ### Phase 3: CRUD API
 
-* Create, Read, Update, Delete operations with proper status codes.
-* Start with in-memory data, then expand to persistence.
+* 🟡 Create, Read, Update, Delete operations with proper status codes.
+* 🟡 Start with in-memory data, then expand to persistence.
 
 ### Phase 4: Database Integration
 
