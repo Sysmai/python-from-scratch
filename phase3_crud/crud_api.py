@@ -48,7 +48,7 @@ def create_task(payload: CreateTask):
     """
     Create a new task with an auto-incremented integer ID.
     """
-    global next_id
+    global next_id  # temporary global variable
     task = {
         "id": next_id,
         "title": payload.title,
