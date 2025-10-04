@@ -2,7 +2,7 @@
 Phase 3, Step 1: Create a CRUD API with FastAPI
 """
 from typing import List, Dict, Any, Optional
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, HTTPException, status, Response
 from pydantic import BaseModel, Field
 
 
@@ -87,4 +87,17 @@ def update_task(task_id: int, payload: UpdateTask):
                 if payload.done is not None:
                     t["done"] = payload.done
                 return t
+    raise HTTPException(status_code=404, detail="Task not found")
+
+
+@app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_task(task_id: int):
+    """
+    Delete a task by ID.
+    Returns 204 if successful, 404 if not found.
+    """
+    for i, t in enumerate(tasks):
+        if t.get("id") == task_id:
+            tasks.pop(i)
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
     raise HTTPException(status_code=404, detail="Task not found")
