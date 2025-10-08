@@ -2,8 +2,9 @@
 Phase 3, Step 1: Create a CRUD API with FastAPI
 """
 from typing import List, Dict, Any, Optional
+
 from fastapi import FastAPI, HTTPException, status, Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 app = FastAPI()
@@ -15,6 +16,9 @@ tasks: List[Dict[str, Any]] = []
 next_id = 1  # pylint: disable=invalid-name
 
 
+# ------------------------------------------------------
+# Models
+# ------------------------------------------------------
 class CreateTask(BaseModel):
     """
     Pydantic model for creating a new task.
@@ -27,10 +31,31 @@ class UpdateTask(BaseModel):
     """
     Pydantic model for updating a task.
     """
-    title: Optional[str] = Field(default=None)
-    done: Optional[bool] = Field(default=None)
+    title: Optional[str] = None
+    done: Optional[bool] = None
 
 
+# ------------------------------------------------------
+# Helpers
+# ------------------------------------------------------
+def find_task_index(task_id: int) -> Optional[int]:
+    """Return the index of the task with the given ID, or None if not found."""
+    for i, t in enumerate(tasks):
+        if int(t.get("id", -1)) == int(task_id):
+            return i
+    return None
+
+
+def generate_next_id() -> int:
+    """Generate a new ID for a task."""
+    if not tasks:
+        return 1
+    return max(int(t.get("id", 0)) for t in tasks) + 1
+
+
+# ------------------------------------------------------
+# Routes
+# ------------------------------------------------------
 @app.get("/tasks")
 def get_tasks():
     """Get all tasks"""
@@ -44,10 +69,9 @@ def get_task(task_id: int):
     Raise 404 if not found.
     """
 
-    # naive linear search (fine for in-memory lists)
-    for t in tasks:
-        if t.get("id") == task_id:
-            return t
+    idx = find_task_index(task_id)
+    if idx is not None:
+        return tasks[idx]
     raise HTTPException(status_code=404, detail="Task not found")
 
 
@@ -56,14 +80,12 @@ def create_task(payload: CreateTask):
     """
     Create a new task with an auto-incremented integer ID.
     """
-    global next_id  # temporary global variable
     task = {
-        "id": next_id,
+        "id": generate_next_id(),
         "title": payload.title,
         "done": payload.done,
     }
     tasks.append(task)
-    next_id += 1
     return task
 
 
@@ -75,19 +97,22 @@ def update_task(task_id: int, payload: UpdateTask):
     400 if body has no updateable fields.
     """
     # find the task
-    for t in tasks:
-        if t in tasks:
-            if t.get("id") == task_id:
-                # at least one field must be provided
-                if payload.title is None and payload.done is None:
-                    raise HTTPException(status_code=400,
-                                        detail="No fields to update")
-                if payload.title is not None:
-                    t["title"] = payload.title
-                if payload.done is not None:
-                    t["done"] = payload.done
-                return t
-    raise HTTPException(status_code=404, detail="Task not found")
+    idx = find_task_index(task_id)
+    if idx is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    # at least one field must be provided
+    if payload.title is None and payload.done is None:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    # update the task
+    if payload.title is not None:
+        tasks[idx]["title"] = payload.title
+
+    if payload.done is not None:
+        tasks[idx]["done"] = payload.done
+
+    return tasks[idx]
 
 
 @app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -96,8 +121,10 @@ def delete_task(task_id: int):
     Delete a task by ID.
     Returns 204 if successful, 404 if not found.
     """
-    for i, t in enumerate(tasks):
-        if t.get("id") == task_id:
-            tasks.pop(i)
-            return Response(status_code=status.HTTP_204_NO_CONTENT)
-    raise HTTPException(status_code=404, detail="Task not found")
+    idx = find_task_index(task_id)
+    if idx is None:
+        raise HTTPException(status_code=404, detail="Task not found")
+
+    # delete the task
+    tasks.pop(idx)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
