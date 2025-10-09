@@ -35,6 +35,16 @@ class UpdateTask(BaseModel):
     done: Optional[bool] = None
 
 
+# New: response model for output
+class Task(BaseModel):
+    """
+    Pydantic model for a task.
+    """
+    id: int
+    title: str
+    done: bool
+
+
 # ------------------------------------------------------
 # Helpers
 # ------------------------------------------------------
@@ -56,13 +66,13 @@ def generate_next_id() -> int:
 # ------------------------------------------------------
 # Routes
 # ------------------------------------------------------
-@app.get("/tasks")
+@app.get("/tasks", response_model=List[Task])
 def get_tasks():
     """Get all tasks"""
     return tasks
 
 
-@app.get("/tasks/{task_id}")
+@app.get("/tasks/{task_id}", response_model=Task)
 def get_task(task_id: int):
     """
     Return a single task by its integer ID.
@@ -75,7 +85,7 @@ def get_task(task_id: int):
     raise HTTPException(status_code=404, detail="Task not found")
 
 
-@app.post("/tasks", status_code=status.HTTP_201_CREATED)
+@app.post("/tasks", status_code=status.HTTP_201_CREATED, response_model=Task)
 def create_task(payload: CreateTask):
     """
     Create a new task with an auto-incremented integer ID.
@@ -89,7 +99,7 @@ def create_task(payload: CreateTask):
     return task
 
 
-@app.patch("/tasks/{task_id}")
+@app.patch("/tasks/{task_id}", response_model=Task)
 def update_task(task_id: int, payload: UpdateTask):
     """
     Partially update a task. Only fields provided are changed.
