@@ -30,13 +30,13 @@ Each phase builds on the last — from small scripts to full-stack APIs with Fas
 
 ### Phase 3: CRUD API
 
-* 🟡 Create, Read, Update, Delete operations with proper status codes.
-* 🟡 Start with in-memory data, then expand to persistence.
+* ✅ Create, Read, Update, Delete operations with proper status codes.
+* ✅ Start with in-memory data, then expand to persistence.
 
 ### Phase 4: Database Integration
 
-* Use SQLite with SQLAlchemy ORM.
-* Deploy to the cloud (Render or AWS Lightsail).
+* 🟡 Use SQLite with SQLAlchemy ORM.
+* 🟡 Deploy to the cloud (Render or AWS Lightsail).
 
 ### Phase 5: Advanced Features
 
@@ -141,3 +141,90 @@ Open in browser:
 * <http://127.0.0.1:8000/hello>
 * <http://127.0.0.1:8000/greet/YourName>
 * Docs: <http://127.0.0.1:8000/docs>
+
+### Phase 3 CRUD API
+
+From the repo root, run with Uvicorn:
+
+```
+uvicorn phase3_crud.crud_api:app --reload
+```
+
+Open in browser:
+
+* [http://127.0.0.1:8000/tasks](http://127.0.0.1:8000/tasks)
+* Docs: [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) → all routes grouped under **Tasks**
+
+---
+
+## 🧩 Endpoints
+
+| Method | Path          | Purpose                 | Body (JSON)                                    | Returns                               |
+| :----: | ------------- | ----------------------- | ---------------------------------------------- | ------------------------------------- |
+|   GET  | `/tasks`      | List all tasks          | —                                              | `200 OK` + `[{id,title,done}, …]`     |
+|   GET  | `/tasks/{id}` | Get one task by ID      | —                                              | `200 OK` + `{id,title,done}` or `404` |
+|  POST  | `/tasks`      | Create a task           | `{"title":"...","done":false}` (done optional) | `201 Created` + `{id,title,done}`     |
+|  PATCH | `/tasks/{id}` | Update fields (partial) | `{"title":"..."}` or `{"done":true}`           | `200 OK` + updated task or `404`      |
+| DELETE | `/tasks/{id}` | Delete a task           | —                                              | `204 No Content` or `404`             |
+
+**Task shape (response model):**
+
+```json
+{ "id": 1, "title": "Example", "done": false }
+```
+
+---
+
+## ▶️ Quick Tests (Git Bash)
+
+> Use single quotes around JSON to avoid escaping quotes.
+
+### Create
+
+```bash
+curl -X POST http://127.0.0.1:8000/tasks \
+  -H "Content-Type: application/json" \
+  -d '{"title":"First task"}'
+```
+
+### List
+
+```bash
+curl http://127.0.0.1:8000/tasks
+```
+
+### Get One
+
+```bash
+curl http://127.0.0.1:8000/tasks/1
+```
+
+### Update
+
+```bash
+curl -X PATCH http://127.0.0.1:8000/tasks/1 \
+  -H "Content-Type: application/json" \
+  -d '{"title":"First task (updated)"}'
+```
+
+### Delete
+
+```bash
+curl -X DELETE http://127.0.0.1:8000/tasks/1
+```
+
+---
+
+## 🧪 Manual Test Plan
+
+1. Start server - verify `/docs` loads and shows all “Tasks” routes.
+2. POST /tasks - create two tasks; confirm IDs increment (1, 2).
+3. GET /tasks - verify both tasks appear.
+4. GET /tasks/1 - confirm correct single task returned.
+5. PATCH /tasks/1 - change title; verify response reflects update.
+6. PATCH /tasks/1 - change `done` to `true`; verify update.
+7. DELETE /tasks/1 - confirm response `204 No Content`.
+8. GET /tasks/1 - now returns `404 Task not found`.
+9. GET /tasks - remaining task still listed.
+
+For full manual verification steps, see [TEST_PLAN.md](./TEST_PLAN.md)
