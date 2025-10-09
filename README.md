@@ -227,12 +227,4 @@ curl -X DELETE http://127.0.0.1:8000/tasks/1
 8. GET /tasks/1 - now returns `404 Task not found`.
 9. GET /tasks - remaining task still listed.
 
----
-
-## 🧾 Commit Example
-
-```bash
-git add README.md
-git commit -m "docs(crud): add Phase 3 usage, endpoints, and manual test plan"
-git push origin feature/crud-tasks
-```
+For full manual verification steps, see [TEST_PLAN.md](./TEST_PLAN.md)
