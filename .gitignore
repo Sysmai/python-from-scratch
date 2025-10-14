@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Ignore SQLite database file for Phase 4
+tasks.db
+
 # Virtual environments
 .venv/
 env/
