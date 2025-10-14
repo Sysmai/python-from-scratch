@@ -9,6 +9,9 @@ from pydantic import BaseModel
 from phase4_database import database as db
 
 
+# ------------------------------------------------------
+# App and Lifespan
+# ------------------------------------------------------
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     """
@@ -24,12 +27,6 @@ app = FastAPI(
     version="0.4.0",
     lifespan=lifespan,
 )
-
-
-# In memory storage for this phase
-tasks: List[Dict[str, Any]] = []
-# simple ID counter for created tasks
-next_id = 1  # pylint: disable=invalid-name
 
 
 # ------------------------------------------------------
@@ -64,21 +61,6 @@ class Task(BaseModel):
 # ------------------------------------------------------
 # Helpers (Phase 4, database version)
 # ------------------------------------------------------
-def find_task_index(task_id: int) -> Optional[int]:
-    """Return the index of the task with the given ID, or None if not found."""
-    for i, t in enumerate(tasks):
-        if int(t.get("id", -1)) == int(task_id):
-            return i
-    return None
-
-
-def generate_next_id() -> int:
-    """Generate a new ID for a task."""
-    if not tasks:
-        return 1
-    return max(int(t.get("id", 0)) for t in tasks) + 1
-
-
 def _to_api_task(rec: Dict[str, Any]) -> Dict[str, Any]:
     """Convert a database record to an API task."""
     return {
