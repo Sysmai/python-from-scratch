@@ -132,23 +132,15 @@ def update_task(task_id: int, payload: UpdateTask):
     404 if not found.
     400 if body has no updateable fields.
     """
-    # find the task
-    idx = find_task_index(task_id)
-    if idx is None:
+    rec = db.update_task(
+        task_id,
+        title=payload.title,
+        description=None,  # unchanged in this API
+        completed=(payload.done if payload.done is not None else None),
+    )
+    if not rec:
         raise HTTPException(status_code=404, detail="Task not found")
-
-    # at least one field must be provided
-    if payload.title is None and payload.done is None:
-        raise HTTPException(status_code=400, detail="No fields to update")
-
-    # update the task
-    if payload.title is not None:
-        tasks[idx]["title"] = payload.title
-
-    if payload.done is not None:
-        tasks[idx]["done"] = payload.done
-
-    return tasks[idx]
+    return _to_api_task(rec)
 
 
 @app.delete("/tasks/{task_id}", status_code=status.HTTP_204_NO_CONTENT,
