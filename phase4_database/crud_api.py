@@ -105,10 +105,10 @@ def get_task(task_id: int):
     Raise 404 if not found.
     """
 
-    idx = find_task_index(task_id)
-    if idx is not None:
-        return tasks[idx]
-    raise HTTPException(status_code=404, detail="Task not found")
+    rec = db.get_task(task_id)
+    if not rec:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return _to_api_task(rec)
 
 
 @app.post("/tasks", status_code=status.HTTP_201_CREATED, response_model=Task,
