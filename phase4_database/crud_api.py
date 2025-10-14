@@ -150,10 +150,7 @@ def delete_task(task_id: int):
     Delete a task by ID.
     Returns 204 if successful, 404 if not found.
     """
-    idx = find_task_index(task_id)
-    if idx is None:
+    ok = db.delete_task(task_id)
+    if not ok:
         raise HTTPException(status_code=404, detail="Task not found")
-
-    # delete the task
-    tasks.pop(idx)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
