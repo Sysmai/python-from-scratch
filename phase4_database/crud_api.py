@@ -62,7 +62,7 @@ class Task(BaseModel):
 
 
 # ------------------------------------------------------
-# Helpers
+# Helpers (Phase 4, database version)
 # ------------------------------------------------------
 def find_task_index(task_id: int) -> Optional[int]:
     """Return the index of the task with the given ID, or None if not found."""
@@ -77,6 +77,15 @@ def generate_next_id() -> int:
     if not tasks:
         return 1
     return max(int(t.get("id", 0)) for t in tasks) + 1
+
+
+def _to_api_task(rec: Dict[str, Any]) -> Dict[str, Any]:
+    """Convert a database record to an API task."""
+    return {
+        "id": int(rec["id"]),
+        "title": str(rec["title"]),
+        "done": bool(rec["completed"]),
+    }
 
 
 # ------------------------------------------------------
