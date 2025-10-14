@@ -117,13 +117,12 @@ def create_task(payload: CreateTask):
     """
     Create a new task with an auto-incremented integer ID.
     """
-    task = {
-        "id": generate_next_id(),
-        "title": payload.title,
-        "done": payload.done,
-    }
-    tasks.append(task)
-    return task
+    rec = db.create_task(
+        title=payload.title,
+        description=None,
+        completed=payload.done,
+    )
+    return _to_api_task(rec)
 
 
 @app.patch("/tasks/{task_id}", response_model=Task, tags=["Tasks"])
