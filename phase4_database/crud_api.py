@@ -94,7 +94,8 @@ def _to_api_task(rec: Dict[str, Any]) -> Dict[str, Any]:
 @app.get("/tasks", response_model=List[Task], tags=["Tasks"])
 def get_tasks():
     """Get all tasks"""
-    return tasks
+    rows = db.list_tasks()
+    return [_to_api_task(r) for r in rows]
 
 
 @app.get("/tasks/{task_id}", response_model=Task, tags=["Tasks"])
