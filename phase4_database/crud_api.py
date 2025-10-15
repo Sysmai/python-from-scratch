@@ -114,11 +114,15 @@ def update_task(task_id: int, payload: UpdateTask):
     404 if not found.
     400 if body has no updateable fields.
     """
+    updates = payload.model_dump(exclude_unset=True)
+    if not updates:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
     rec = db.update_task(
-        task_id,
-        title=payload.title,
+        task_id=task_id,
+        title=updates.get("title"),
         description=None,  # unchanged in this API
-        completed=(payload.done if payload.done is not None else None),
+        completed=updates.get("done") if "done" in updates else None,
     )
     if not rec:
         raise HTTPException(status_code=404, detail="Task not found")
