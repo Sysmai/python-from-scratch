@@ -49,6 +49,12 @@ class Task(Base):
     completed: Mapped[bool] = mapped_column(
         Boolean, default=False, nullable=False)
 
+    # API-facing convenience so Pydantic can read 'done' when serializing
+    @property
+    def done(self) -> bool:
+        """Return the completed status as 'done' for API serialization."""
+        return self.completed
+
 
 # Session factory: creates Session objects for DB interactions.
 SessionLocal = sessionmaker(
@@ -81,6 +87,18 @@ def session_scope() -> Generator[Session, None, None]:
         raise
     finally:
         session.close()
+
+
+# ------------------------------------------------------------
+# FastAPI dependency
+# ------------------------------------------------------------
+def get_session() -> Generator[Session, None, None]:
+    """
+    Yield a live SQLAlchemy Session to FastAPI route handlers.
+    FastAPI will call this for each request that depends on it.
+    """
+    with session_scope() as session:
+        yield session
 
 
 def orm_list_tasks(session: Session) -> List[Task]:
@@ -189,7 +207,7 @@ if __name__ == "__main__":
     # Delete
     with session_scope() as s:
         print("\nDeleting second task:")
-        deleted = orm_delete_task(s, t2.id)
+        deleted = orm_delete_task(s, t2.id)  # pylint: disable=invalid-name
         print("Deleted:", deleted)
 
     # List all tasks
