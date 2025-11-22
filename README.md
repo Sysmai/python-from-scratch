@@ -35,8 +35,8 @@ Each phase builds on the last — from small scripts to full-stack APIs with Fas
 
 ### Phase 4: Database Integration
 
-* 🟡 Use SQLite with SQLAlchemy ORM.
-* 🟡 Deploy to the cloud (Render or AWS Lightsail).
+* ✅ Use SQLite with SQLAlchemy ORM.
+* ✅ Deploy to the cloud (Render or AWS Lightsail).
 
 ### Phase 5: Advanced Features
 
